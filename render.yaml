@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: one-cut-import
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: pip install -r requirements.txt && python build_runtime.py
+    startCommand: python app.py
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: NODE_VERSION
+        value: 22
+      - key: IMPORT_TOKEN
+        generateValue: true
+      - key: ALLOWED_ORIGIN
+        value: https://one-minute-studio.elkysky.chatgpt.site
