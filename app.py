@@ -80,6 +80,15 @@ def run_command(command, job, timeout=120):
                     raise UserError('임시 파일 용량 한도를 넘었습니다. 더 짧은 구간을 선택해 주세요.')
                 time.sleep(.2)
             if process.returncode:
+                detail = log.read_text(errors='replace').lower()
+                if any(value in detail for value in ("confirm you’re not a bot", "confirm you're not a bot", 'sign in to confirm', 'http error 429')):
+                    raise UserError('유튜브가 서버의 영상 접근을 제한했습니다. 이 링크는 현재 가져올 수 없습니다. 기기에 있는 영상 파일로 편집해 주세요.')
+                if 'requested format is not available' in detail:
+                    raise UserError('이 영상에서 지원하는 MP4 화질을 찾지 못했습니다.')
+                if any(value in detail for value in ('timed out', 'unable to connect', 'temporary failure in name resolution')):
+                    raise UserError('유튜브 연결 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.')
+                if 'video unavailable' in detail or 'private video' in detail:
+                    raise UserError('현재 공개 재생할 수 없는 영상입니다.')
                 raise UserError('유튜브에서 영상을 가져오지 못했습니다. 접근 제한 또는 일시적인 오류일 수 있습니다.')
         finally:
             if process.poll() is None:
